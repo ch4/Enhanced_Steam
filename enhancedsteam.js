@@ -2697,6 +2697,7 @@ function inventory_market_helper(response) {
 	var marketable = response.split(":::")[1];
 	var global_id = response.split(":::")[2];
 	var hash_name = response.split(":::")[3];
+	var lowest_price;
 
 	if ($('#es_item0').length == 0) { $("#iteminfo0_item_market_actions").after("<div class='item_market_actions es_item_action' id=es_item0 height=10></div>"); }
 	if ($('#es_item1').length == 0) { $("#iteminfo1_item_market_actions").after("<div class='item_market_actions es_item_action' id=es_item1 height=10></div>"); }
@@ -2717,7 +2718,25 @@ function inventory_market_helper(response) {
 		}
 		get_http(url, function (txt) {
 			var item_price = txt.match(/<span class="market_listing_price market_listing_price_with_fee">\r\n(.+)<\/span>/);					
-			if (item_price) { $("#es_item" + item).html(localized_strings[language].lowest_price + " for " + item_name + ": " + item_price[1].trim() + "<br><a href=\"" + url + "\" target='_blank' class='btn_grey_grey btn_medium'><span>" + localized_strings[language].view_marketplace + "</span></a>");
+			if (item_price) {
+			    var str_lowest_price = (item_price[1].trim().replace("&#36;", ""));
+			    var flAmount = parseFloat(str_lowest_price) * 100;
+			    lowest_price = Math.round(isNaN(flAmount) ? 0 : flAmount);
+			    lowest_price = Math.max(lowest_price, 0);
+
+			    var nEstimatedAmountOfWalletFundsReceivedByOtherParty = parseInt(Math.max(lowest_price / (parseFloat(0.05) + parseFloat(0.10) + 1))); //adjust for fees
+			    //if (nEstimatedAmountOfWalletFundsReceivedByOtherParty*)
+			    //console.log(nEstimatedAmountOfWalletFundsReceivedByOtherParty * 1.15);
+			    if ((nEstimatedAmountOfWalletFundsReceivedByOtherParty * 1.15) < lowest_price) ++nEstimatedAmountOfWalletFundsReceivedByOtherParty; //fix rounding error
+			    //console.log(lowest_price + " , " + nEstimatedAmountOfWalletFundsReceivedByOtherParty);
+			    
+			    function injectjs(link) { $('<script type="text/javascript" src="' + link + '"/>').appendTo($('head')); }
+			    injectjs(chrome.extension.getURL('injected_sell_script.js'));
+
+			    $("#es_item" + item).html(localized_strings[language].lowest_price + " for " + item_name + ": " + item_price[1].trim() + "<br><a href=\"" + url + "\" target='_blank' class='btn_grey_grey btn_medium'><span>" + localized_strings[language].view_marketplace + "</span></a>" +
+                  "<button id='es_item_quicksell' onclick='quicksell(" + nEstimatedAmountOfWalletFundsReceivedByOtherParty + ");$(&#39;es_item_quicksell&#39;).hide();'>QuickSell for " + str_lowest_price + "</button>"
+                );
+
 			} else { $("#es_item" + item).html(localized_strings[language].no_results_found); }
 		});
 	}
