@@ -17,7 +17,7 @@
 	   "img/steamdb.png", "img/steamdb_store.png", "img/play_off.png", "img/play_on.png", "img/ico_cards.gif", "img/red_banner.png", "img/es_btn_browse.png", "img/pcgw.png", "img/gl_banner.jpg",
       "css/enhancedsteam.css", "options.html",
       "img/flags/flags.png"
-      ,"img/flags/world.png","img/arrows.png"
+      ,"img/flags/world.png","img/arrows.png", "injected_sell_script.js"
   ],
   "homepage_url": "http://www.EnhancedSteam.com/",
   "content_scripts": [
@@ -32,6 +32,7 @@
       "js": [
         "js/jQuery.min.js",
         "js/localization.js",
+		"injected_sell_script.js",
         "enhancedsteam.js"],
       "css": ["css/enhancedsteam.css"]
     },

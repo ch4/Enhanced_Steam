@@ -2703,6 +2703,7 @@ function inventory_market_helper(response) {
 	var marketable = response.split(":::")[1];
 	var global_id = response.split(":::")[2];
 	var hash_name = response.split(":::")[3];
+	var lowest_price;
 
 	if ($('#es_item0').length == 0) { $("#iteminfo0_item_market_actions").after("<div class='item_market_actions es_item_action' id=es_item0 height=10></div>"); }
 	if ($('#es_item1').length == 0) { $("#iteminfo1_item_market_actions").after("<div class='item_market_actions es_item_action' id=es_item1 height=10></div>"); }
@@ -2722,11 +2723,29 @@ function inventory_market_helper(response) {
 				var url = "http://steamcommunity.com/market/listings/" + global_id + "/" + html_characters(hash_name);
 		}
 		get_http(url, function (txt) {
-			var item_price = $(txt).find('.market_listing_row:has(.market_listing_buy_button a):first .market_listing_price.market_listing_price_with_fee:first').text().trim();
-			if (item_price != "")
-				$("#es_item" + item).html(localized_strings[language].lowest_price + " " + item_name + ": " + item_price + "<br><a href=\"" + url + "\" target='_blank' class='btn_grey_grey btn_medium'><span>" + localized_strings[language].view_marketplace + "</span></a>");
-			else
-				$("#es_item" + item).html(localized_strings[language].no_results_found);
+			var item_price = txt.match(/<span class="market_listing_price market_listing_price_with_fee">\r\n(.+)<\/span>/);					
+			if (item_price != "") {
+			    var str_lowest_price = (item_price[1].trim().replace("&#36;", ""));
+			    var flAmount = parseFloat(str_lowest_price) * 100;
+			    lowest_price = Math.round(isNaN(flAmount) ? 0 : flAmount);
+			    lowest_price = Math.max(lowest_price, 0);
+
+			    var nEstimatedAmountOfWalletFundsReceivedByOtherParty = parseInt(Math.max(lowest_price / (parseFloat(0.05) + parseFloat(0.10) + 1))); //adjust for fees
+			    //if (nEstimatedAmountOfWalletFundsReceivedByOtherParty*)
+			    //console.log(nEstimatedAmountOfWalletFundsReceivedByOtherParty * 1.15);
+			    if ((nEstimatedAmountOfWalletFundsReceivedByOtherParty * 1.15) < lowest_price) ++nEstimatedAmountOfWalletFundsReceivedByOtherParty; //fix rounding error
+			    //console.log(lowest_price + " , " + nEstimatedAmountOfWalletFundsReceivedByOtherParty);
+			    
+			    function injectjs(link) { $('<script type="text/javascript" src="' + link + '"/>').appendTo($('head')); }
+			    injectjs(chrome.extension.getURL('injected_sell_script.js'));
+
+			    $("#es_item" + item).html(localized_strings[language].lowest_price + " for " + item_name + ": " + item_price[1].trim() + "<br><a href=\"" + url + "\" target='_blank' class='btn_grey_grey btn_medium'><span>" + localized_strings[language].view_marketplace + "</span></a>");
+				
+				$("#iteminfo0_item_market_actions").html($("#iteminfo0_item_market_actions").html() +
+				  "<a id='es_item_quicksell' class='item_market_action_button item_market_action_button_green' href='javascript:quicksell(" + nEstimatedAmountOfWalletFundsReceivedByOtherParty + ");$(&#39;es_item_quicksell&#39;).hide();'><span class='item_market_action_button_edge item_market_action_button_left'></span><span class='item_market_action_button_contents'>QuickSell</span><span class='item_market_action_button_edge item_market_action_button_right'></span><span class='item_market_action_button_preload'></span></a>"
+				);
+
+			} else { $("#es_item" + item).html(localized_strings[language].no_results_found); }
 		});
 	}
 	
