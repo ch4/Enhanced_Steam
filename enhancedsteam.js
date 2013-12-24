@@ -19,6 +19,13 @@ var appid_promises = {};
 var library_all_games = [];
 
 MutationObserver = window.MutationObserver || window.WebKitMutationObserver;
+// Runs script in the context of the current tab
+function runInPageContext(fun){
+    var script  = document.createElement('script');
+	script.textContent = '(' + fun + ')();';
+	document.documentElement.appendChild(script);
+	script.parentNode.removeChild(script);
+}
 
 //Chrome storage functions.
 function setValue(key, value) {
@@ -744,16 +751,38 @@ function add_wishlist_discount_sort() {
 			var push = new Array();
 			if ($(this).html().match(/discount_block_inline/)) {
 				push[0] = this.outerHTML;
-				push[1] = $(this).find("div[class='discount_pct']").html();
+				push[1] = $(this).find(".discount_pct").html();
+				push[2] = $(this).find(".discount_final_price").html();
 			} else {
 				push[0] = this.outerHTML;
 				push[1] = "0";
+				push[2] = $(this).find(".price").html();
 			}
 			wishlistRows.push(push);
 			this.parentNode.removeChild(this);
 		});
 
-		wishlistRows.sort(function(a,b) { return parseInt(a[1],10) - parseInt(b[1],10);	});
+		wishlistRows.sort(function(a,b) {
+			var discountA = parseInt(a[1],10);
+			var discountB = parseInt(b[1],10);
+
+			if (discountA > discountB) {
+				return 1;
+			} else if (discountA < discountB) {
+				return -1;
+			} else {
+				var priceA = Number(a[2].replace(/[^0-9\.]+/g,""));
+				var priceB = Number(b[2].replace(/[^0-9\.]+/g,""));
+
+				if (priceA > priceB) {
+					return 1;
+				} else if (priceA < priceB) {
+					return -1;
+				} else {
+					return 0;
+				}
+			}
+		});
 
 		$('.wishlistRow').each(function () { $(this).css("display", "none"); });
 
@@ -959,6 +988,11 @@ function add_steamchart_info(appid) {
 			}
 		});
 	}
+}
+
+function add_system_requirements_check(appid) {
+	var html = "<a class='btn_darkblue_white_innerfade btn_medium es_btn_systemreqs' href='steam://checksysreqs/" + appid + "'><span>" + localized_strings[language].check_system + "</span></a>";
+	$("#game_area_sys_req").last().after(html);
 }
 
 function send_age_verification() {
@@ -1697,7 +1731,7 @@ function drm_warnings() {
 			var text = $("#game_area_description").html();
 			text += $("#game_area_sys_req").html();
 			text += $("#game_area_legal").html();
-			text += $(".rightcol").html();
+			text += $(".game_details").html();
 
 			// Games for Windows Live detection
 			if (text.toUpperCase().indexOf("GAMES FOR WINDOWS LIVE") > 0) { gfwl = true; }
@@ -3707,30 +3741,33 @@ function add_affordable_button() {
 }
 
 function add_small_cap_height() {
-	// Add height for another line for tags;
-	var height_to_add = 20,
-		$small_cap_pager = $(".small_cap_pager"),
-		$small_cap = $(".small_cap");
+	storage.get(function(settings) {			
+		if (settings.tag_owned || settings.tag_wishlist || settings.tag_coupon || settings.tag_inv_gift || settings.tag_inv_guestpass || settings.tag_friends_want || settings.tag_friends_own || settings.tag_friends_rec) {	
+			// Add height for another line for tags;
+			var height_to_add = 20,
+				$small_cap_pager = $(".small_cap_pager"),
+				$small_cap = $(".small_cap");
 
-	if ($small_cap.length > 0) {
-		if (/^\/$/.test(window.location.pathname)) {
-			// $small_cap_pager and $small_cap_page are exclusive to frontpage, so let's not run them anywhere else.
-			$.each($small_cap_pager, function(i, obj) {
-				// Go though and check if they are one or two row pagers.
-				var $obj = $(obj),
-					rows = obj.classList.contains("onerow") ? 1 : 2,
-					$small_cap_page = $obj.find(".small_cap_page");
+			if ($small_cap.length > 0) {
+				if (/^\/$/.test(window.location.pathname)) {
+					// $small_cap_pager and $small_cap_page are exclusive to frontpage, so let's not run them anywhere else.
+					$.each($small_cap_pager, function(i, obj) {
+						// Go though and check if they are one or two row pagers.
+						var $obj = $(obj),
+							rows = obj.classList.contains("onerow") ? 1 : 2,
+							$small_cap_page = $obj.find(".small_cap_page");
 
-				// Don't do anything to the video small_cap
-				if (!obj.classList.contains("onerowvideo")) {
-					$obj.css("height", parseInt($obj.css("height").replace("px", ""), 10) + (height_to_add * rows) + "px");
-					$small_cap_page.css("height", parseInt($small_cap_page.css("height").replace("px", ""), 10) + (height_to_add * rows) + "px");
+						// Don't do anything to the video small_cap
+						if (!obj.classList.contains("onerowvideo")) {
+							$obj.css("height", parseInt($obj.css("height").replace("px", ""), 10) + (height_to_add * rows) + "px");
+							$small_cap_page.css("height", parseInt($small_cap_page.css("height").replace("px", ""), 10) + (height_to_add * rows) + "px");
+						}
+					});
 				}
-			});
+				$small_cap.css("height", parseInt($small_cap.css("height").replace("px", ""), 10) + height_to_add + "px");
+			}
 		}
-
-		$small_cap.css("height", parseInt($small_cap.css("height").replace("px", ""), 10) + height_to_add + "px");
-	}
+	});	
 }
 
 function start_friend_activity_highlights() {
@@ -3785,6 +3822,7 @@ function rewrite_string(string) {
 	string = string.replace(/%3F/g, "?");
 	string = string.replace(/%2C/g, ",");
 	string = string.replace(/%22/g, "\"");
+	string = string.replace(/%23/g, "#");
 	return string;
 }
 
@@ -4282,8 +4320,21 @@ function add_badge_filter() {
 
 		$('.profile_badges_header').append(html);
 
+		var resetLazyLoader = function() { runInPageContext(function() { 
+				// Clear registered image lazy loader watchers (CScrollOffsetWatcher is found in shared_global.js)
+				CScrollOffsetWatcher.sm_rgWatchers = [];
+				
+				// Recreate registered image lazy loader watchers
+				$J('div[id^=image_group_scroll_badge_images_gamebadge_]').each(function(i,e){
+					// LoadImageGroupOnScroll is found in shared_global.js
+					LoadImageGroupOnScroll(e.id, e.id.substr(19));
+				});
+			});
+		};
+		
 		$('#es_badge_all').on('click', function() {
-			$('.is_link').css('display', 'block');
+			$('.is_link').css('display', 'block');			
+			resetLazyLoader();
 		});
 
 		$('#es_badge_drops').on('click', function() {
@@ -4302,6 +4353,7 @@ function add_badge_filter() {
 					}
 				}
 			});
+			resetLazyLoader();
 		});
 	}
 }
@@ -4321,7 +4373,7 @@ function add_badge_view_options() {
 	$("#es_badge_view_binder").on('click', function() {
 		$('.is_link').each(function () {
 			var stats = $(this).find("span[class$='progress_info_bold']").html();
-			$(this).find("div[class$='badge_cards']").remove();
+						$(this).find("div[class$='badge_cards']").remove();
 			$(this).find("div[class$='badge_title_stats']").css("display", "none");
 			$(this).find("div[class$='badge_description']").css("display", "none");
 			$(this).find("span[class$='badge_view_details']").remove();
@@ -4332,6 +4384,8 @@ function add_badge_view_options() {
 			$(this).find("div[class$='badge_progress_info']").css("margin", "0");
 			$(this).find("div[class$='badge_progress_info']").css("width", "auto");
 			$(this).find("div[class$='badge_title']").css("font-size", "12px");
+			$(this).find("div[class$='badge_title']").css("line-height", "26px");
+      			$(this).find("div[class$='badge_title']").html($(this).find("div[class$='badge_title']").html().slice(0,-9));
 			$(this).find("div[class$='badge_title_row']").css("padding-top", "0px");
 			$(this).find("div[class$='badge_title_row']").css("padding-right", "4px");
 			$(this).find("div[class$='badge_title_row']").css("padding-left", "4px");
@@ -4341,7 +4395,7 @@ function add_badge_view_options() {
 			$(this).find("div[class$='badge_empty_circle']").css("float", "center");
 			$(this).find("div[class$='badge_empty_circle']").css("margin-left", "45px");
 			$(this).find("div[class$='badge_info_image']").css("float", "center");
-			$(this).find("div[class$='badge_info_image']").css("margin-right", "0px");
+			$(this).find("div[class$='badge_info_image']").css("margin", "7px auto 0px auto");
 			$(this).find("div[class$='badge_content']").css("padding-top", "0px");
 			$(this).css("width", "160px");
 			$(this).css("height", "195px");
@@ -4491,7 +4545,8 @@ $(document).ready(function(){
 						add_4pack_breakdown();
 						add_package_info_button();
 						add_steamchart_info(appid);
-						dlc_data_for_app_page()
+						add_system_requirements_check(appid);
+						dlc_data_for_app_page();
 
 						show_regional_pricing();
 						break;
