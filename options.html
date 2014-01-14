@@ -27,7 +27,7 @@
 		<a class="tab_row" id="nav_donate" href="http://www.EnhancedSteam.com/donate.php">Donate</a>
 	</div>
 
-	<div id="contentwrapper">	
+	<div id="contentwrapper">
 		<div id="maincontent_store" class="content">
 			<ul>
 				<li class="header" id="language_text">Language</li>
@@ -45,6 +45,7 @@
 					<option value="rus">Русский</option>
 					<option value="sch">中文(简体)‬</option>
 					<option value="tur">Türkçe</option>
+					<option value="heb">Hebrew (Beta)</option>
 				</select>
 				<li class="header" id="highlight_text">Highlight</li>
 				<div>
@@ -198,6 +199,7 @@
 				</div>
 				<li class="header" id="hide_text">Hide</li>
 				<li><input type="checkbox" id="hide_owned"><label for="hide_owned" id="hide_owned_text">Items you own</label></li>
+				<li><input type="checkbox" id="hide_dlcunownedgames"><label for="hide_dlcunownedgames" id="hide_dlcunownedgames_text">DLC for games you do not own</label></li>
 				<li><input type="checkbox" id="hidetmsymbols"><label for="hidetmsymbols" id="hidetmsymbols_text">Trademark and Copyright symbols in game titles</label></li>
 				<li class="header" id="library_text">Library (BETA)</li>
 				<li><input type="checkbox" id="showlibrarymenu"><label for="showlibrarymenu" id="store_show_library_text">Show Library button in header</label></li>
@@ -218,6 +220,7 @@
 				<li><input type="checkbox" id="showwsgf"><label for="showwsgf" id="store_wsgf_text">Show WSGF (Widescreen) info</label><a href="http://enhancedsteam.com/featuredetail.php?id=15" class="help"></a></li>
 				<li><input type="checkbox" id="show_steamchart_info"><label for="show_steamchart_info" id="store_steamchart_info_text">Show SteamCharts.com info</label></li>
 				<li><input type="checkbox" id="show_package_info"><label for="show_package_info" id="store_package_info_text">Show package info for all apps</label></li>
+				<li><input type="checkbox" id="show_sysreqcheck"><label for="show_sysreqcheck" id="show_sysreqcheck_text">Show button to check system requirements on app pages (Experimental!)</label></li>
 				<li><input type="checkbox" id="show_carousel_descriptions"><label for="show_carousel_descriptions" id="store_carousel_descriptions_text">Show app descriptions on storefront carousel</label><a href="http://enhancedsteam.com/featuredetail.php?id=26" class="help"></a></li>
 			</ul>
 		</div>
@@ -374,6 +377,9 @@
 					<a href="http://enhancedsteam.com/featuredetail.php?id=20" class="help"></a>
 				</li>
 				<li>
+					<input type="checkbox" id="showinvnav"><label for="showinvnav" id="inventory_nav_text">Show advanced navigation on inventory page</label>
+				</li>
+				<li>
 					<input type="checkbox" id="showesbg"><label for="showesbg" id="es_background_text">Set custom background on "Edit Profile" screen</label>
 					<a href="http://enhancedsteam.com/featuredetail.php?id=17" class="help"></a>
 				</li>
@@ -492,17 +498,22 @@
 				<li>Tomáš '<a href="http://steamcommunity.com/profiles/76561198020275445" id="tomas_steam">Timmy</a>' Duda</li>				
 			</ul>
 			<ul class="credits">
+				<li class="header" id="graphics_text">Graphics</li>
+				<li>SolventSnake</li>
+			</ul>
+			<ul class="credits">
 				<li class="header" id="translation_text">Translation</li>
-				<div><li class="language">Spanish:</li><li class="translator">sharkiller, Ryo567</li></div>
-				<div><li class="language">Russian:</li><li class="translator">Vyacheslav Konchits</li></div>
-				<div><li class="language">German:</li><li class="translator">Timmaeh Elbert</li></div>
-				<div><li class="language">Japanese:</li><li class="translator">planicrand</li></div>
-				<div><li class="language">French:</li><li class="translator">Yanuut</li></div>
-				<div><li class="language">Czech:</li><li class="translator">Daniel Peukert</li></div>
-				<div><li class="language">Italian:</li><li class="translator">Andrea Brandi</li></div>
-				<div><li class="language">Portuguese:</li><li class="translator">Johnywalves</li></div>
-				<div><li class="language">Chinese:</li><li class="translator">Bin Dong</li></div>
-				<div><li class="language">Polish:</li><li class="translator">mrmahon</li></div>
+				<li><span class="language">Spanish:</span><span class="translator">sharkiller, Ryo567</span></li>
+				<li><span class="language">Russian:</span><span class="translator">Vyacheslav Konchits</span></li>
+				<li><span class="language">German:</span><span class="translator">Timmaeh Elbert</span></li>
+				<li><span class="language">Japanese:</span><span class="translator">planicrand</span></li>
+				<li><span class="language">French:</span><span class="translator">Yanuut</span></li>
+				<li><span class="language">Czech:</span><span class="translator">Daniel Peukert</span></li>
+				<li><span class="language">Italian:</span><span class="translator">Andrea Brandi</span></li>
+				<li><span class="language">Portuguese:</span><span class="translator">Johnywalves</span></li>
+				<li><span class="language">Chinese:</span><span class="translator">Bin Dong</span></li>
+				<li><span class="language">Polish:</span><span class="translator">mrmahon</span></li>
+				<li><span class="language">Hebrew:</span><span class="translator">David 'Mr.Ne[0]' Yaacov</span></li>
 			</ul>
 		</div>
 
@@ -510,6 +521,6 @@
 			<span><a href="http://www.enhancedsteam.com">Enhanced Steam Extension</a><br>by jshackles</span>
 			<div><button id="reset" class="btn">Reset options</button></div>
 		</div>
-
+	</div>
 </body>
 </html>
