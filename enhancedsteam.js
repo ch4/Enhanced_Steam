@@ -2773,11 +2773,10 @@ function inventory_market_helper(response) {
 			    function injectjs(link) { $('<script type="text/javascript" src="' + link + '"/>').appendTo($('head')); }
 			    injectjs(chrome.extension.getURL('injected_sell_script.js'));
 
-			    $("#es_item" + item).html(localized_strings[language].lowest_price + " for " + item_name + ": " + item_price[1].trim() + "<br><a href=\"" + url + "\" target='_blank' class='btn_grey_grey btn_medium'><span>" + localized_strings[language].view_marketplace + "</span></a>");
+			    $("#es_item" + item).html(localized_strings[language].lowest_price + " for " + item_name + ": " + item_price[1].trim() + "<br><a href=\"" + url + "\" target='_blank' class='btn_grey_grey btn_medium'><span>" + localized_strings[language].view_marketplace + "</span></a>" +
+					  "<a id='es_item_quicksell' class='item_market_action_button item_market_action_button_green' href='javascript:quicksell(" + nEstimatedAmountOfWalletFundsReceivedByOtherParty + ");$(&#39;es_item_quicksell&#39;).hide();'><span class='item_market_action_button_edge item_market_action_button_left'></span><span class='item_market_action_button_contents'>QuickSell</span><span class='item_market_action_button_edge item_market_action_button_right'></span><span class='item_market_action_button_preload'></span></a>"
+					);
 				
-				$("#iteminfo0_item_market_actions").html($("#iteminfo0_item_market_actions").html() +
-				  "<a id='es_item_quicksell' class='item_market_action_button item_market_action_button_green' href='javascript:quicksell(" + nEstimatedAmountOfWalletFundsReceivedByOtherParty + ");$(&#39;es_item_quicksell&#39;).hide();'><span class='item_market_action_button_edge item_market_action_button_left'></span><span class='item_market_action_button_contents'>QuickSell</span><span class='item_market_action_button_edge item_market_action_button_right'></span><span class='item_market_action_button_preload'></span></a>"
-				);
 
 			} else { $("#es_item" + item).html(localized_strings[language].no_results_found); }
 		});
